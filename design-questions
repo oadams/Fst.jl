@@ -1,0 +1,14 @@
+Do we allow states to have names?
+
+What order do we give the fields of the Fst type? What order do we give the
+arguments of add_arc?
+
+Should transitions take the form of a 4 dimensional array?
+
+Do we need to create a dictionary to map state names, inputs and outputs into
+indices for lookup in the transitions matrix, or can we just lookup the index
+each time?
+
+How do we make good unit tests for this?
+
+What functionality are we aiming for? Design with that in mind.
