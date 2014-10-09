@@ -1,5 +1,7 @@
 Do we allow states to have names?
 
+	Sure, why not.
+
 What order do we give the fields of the Fst type? What order do we give the
 arguments of add_arc?
 
@@ -12,3 +14,28 @@ each time?
 How do we make good unit tests for this?
 
 What functionality are we aiming for? Design with that in mind.
+
+	My immediate practical requirements for the paper are a weighted
+	finite-state transducer type with a composition operator and methods to
+	perform forward filtering / backward sampling. That's about it. Oh and an
+	FSA type for linear chains.
+
+	Basic other operations include functions to create graphical
+	representations using Graphviz, perhaps tying this into IJulia some way in
+	the spirit of IPython.Display (not sure where IJUlia is on this front yet).
+
+	Also, fundamental operations listed on the FST wikipedia page and Pyfst
+	should be included.
+
+How should we name the fields of the Fst? With greek names in line with the
+formal construction, or longer human readable names?
+
+Should we have a transition matrix, or simply a vector that contains tuples
+that correspond to certain arcs?
+
+How does our type hierarchy work?
+
+	Perhaps something like this, but remember that abstract types can't be
+	instantiated.
+	FSM -> FSA, FST
+	FST -> 
