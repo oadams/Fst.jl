@@ -1,41 +1,23 @@
+# The FST type that doesn't support weighted arcs.
 type Fst
-    input_alphabet::Dict{String,Int}
-    output_alphabet::Dict{String,Int}
-    states::Dict{String,Int}
-    initial_states::Vector{String}
-    final_states::Vector{String}
-    transitions::Array{Int,4}
+    input_alphabet::Set{String}
+    output_alphabet::Set{String}
+    states::Set{String}
+    initial_states::Set{String}
+    final_states::Set{String}
+    transitions::Set{(String, String, String, String)}
 end
 
-# Constructors
-Fst() = Fst(Dict(), Dict(), Dict(), String[], String[],
-        falses(100,100,100,100)) # Temporary - should be variable
+# Empty constructor
+Fst() = Fst(Set{String}(), Set{String}(), Set{String}(), Set{String}(),
+        Set{String}(), Set{(String, String, String, String)}())
 
-Fst(input_alphabet, output_alphabet, states, initial_states, final_states) =
-    Fst(input_alphabet, output_alphabet, states, initial_states, final_states,
-            falses(Int, length(states), length(input_alphabet), length(states),
-            length(output_alphabet)))
-
-function add_arc(fst::Fst, from, to, input, output)
-    # Extend the arrays to cope with the possibly new symbols
-    if !(from in keys(fst.states))
-        fst.states[from] = length(keys(fst.states)) + 1
-    end
-    if !(to in keys(fst.states))
-        fst.states[to] = length(keys(fst.states)) + 1
-    end
-    if !(input in keys(fst.input_alphabet))
-        fst.input_alphabet[input] = length(keys(fst.input_alphabet)) + 1
-    end
-    if !(output in keys(fst.output_alphabet))
-        fst.output_alphabet[output] = length(keys(fst.output_alphabet)) + 1
-    end
-    return
-
-    fst.transitions[fst.states[from], fst.input_alphabet[input],
-            fst.states[to], fst.output_alphabet[output]] = true
-
+function add_arc(fst::Fst,
+        from::String, input::String,
+        to::String, output::String)
+    fst.states = union(fst.states, Set([from]))
+    fst.input_alphabet = union(fst.input_alphabet, Set([input]))
+    fst.states = union(fst.states, Set([to]))
+    fst.output_alphabet = union(fst.output_alphabet, Set([output]))
+    fst.transitions = union(fst.transitions, Set([(from, input, to, output)]))
 end
-
-# Since we want to be able to add arcs and symbols after construction, we don't
-# want to have to specify the transitions matrix size from the get go.
