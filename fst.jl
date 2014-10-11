@@ -1,13 +1,16 @@
 type Fst
-    input_alphabet::Vector{String}
-    output_alphabet::Vector{String}
-    states::Vector{String}
+    input_alphabet::Dict{String,Int}
+    output_alphabet::Dict{String,Int}
+    states::Dict{String,Int}
     initial_states::Vector{String}
     final_states::Vector{String}
-    transitions::Array{Bool,4}
+    transitions::Array{Int,4}
 end
 
-Fst() = Fst(String[], String[], String[], String[], String[])
+# Constructors
+Fst() = Fst(Dict(), Dict(), Dict(), String[], String[],
+        falses(100,100,100,100)) # Temporary - should be variable
+
 Fst(input_alphabet, output_alphabet, states, initial_states, final_states) =
     Fst(input_alphabet, output_alphabet, states, initial_states, final_states,
             falses(Int, length(states), length(input_alphabet), length(states),
@@ -15,26 +18,23 @@ Fst(input_alphabet, output_alphabet, states, initial_states, final_states) =
 
 function add_arc(fst::Fst, from, to, input, output)
     # Extend the arrays to cope with the possibly new symbols
-    if !(from in fst.states)
-        fst.states = [fst.states; from]
-        #fst.transitions = cat(1, fst.transitions, true)
+    if !(from in keys(fst.states))
+        fst.states[from] = length(keys(fst.states)) + 1
     end
-    if !(to in fst.states)
-        fst.states = [fst.states; to]
-        #fst.transitions = cat(3, fst.transitions, true)
+    if !(to in keys(fst.states))
+        fst.states[to] = length(keys(fst.states)) + 1
     end
-    if !(input in fst.input_alphabet)
-        fst.input_alphabet = [fst.input_alphabet; input]
+    if !(input in keys(fst.input_alphabet))
+        fst.input_alphabet[input] = length(keys(fst.input_alphabet)) + 1
     end
-    if !(output in fst.output_alphabet)
-        fst.output_alphabet = [fst.output_alphabet; output]
+    if !(output in keys(fst.output_alphabet))
+        fst.output_alphabet[output] = length(keys(fst.output_alphabet)) + 1
     end
     return
-    # Doing the inefficient but simple thing of just creating a new transitions
-    # array
-    fst.transitions = reshape(fst.transitions, length(fst.states),
-            length(fst.input_alphabet), length(fst.states),
-            length(fst.output_alphabet))
+
+    fst.transitions[fst.states[from], fst.input_alphabet[input],
+            fst.states[to], fst.output_alphabet[output]] = true
+
 end
 
 # Since we want to be able to add arcs and symbols after construction, we don't
