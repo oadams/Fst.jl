@@ -13,11 +13,10 @@ Fst() = Fst(Set{String}(), Set{String}(), Set{String}(), Set{String}(),
         Set{String}(), Set{(String, String, String, String)}())
 
 function add_arc(fst::Fst,
-        from::String, input::String,
-        to::String, output::String)
-    fst.states = union(fst.states, Set([from]))
+        from::String, to::String,
+        input::String, output::String)
+    fst.states = union(fst.states, Set([[from], [to]]))
     fst.input_alphabet = union(fst.input_alphabet, Set([input]))
-    fst.states = union(fst.states, Set([to]))
     fst.output_alphabet = union(fst.output_alphabet, Set([output]))
-    fst.transitions = union(fst.transitions, Set([(from, input, to, output)]))
+    fst.transitions = union(fst.transitions, Set([(from, to, input, output)]))
 end
