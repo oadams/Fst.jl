@@ -12,6 +12,16 @@ end
 Fst() = Fst(Set{String}(), Set{String}(), Set{String}(), Set{String}(),
         Set{String}(), Set{(String, String, String, String)}())
 
+function fst2dot(fst::Fst)
+    s = "digraph FST {\n"
+    for rule in fst.transitions
+        #s = string(s, "\t", rule[1], " -> ", rule[2], ";\n")
+        s = "$s\t$(rule[1]) -> $(rule[2]) [label=\"$(rule[3])/$(rule[4])\"];\n"
+    end
+    s = "$s}"
+    return s
+end
+
 function add_arc(fst::Fst,
         from::String, to::String,
         input::String, output::String)
@@ -38,8 +48,8 @@ function compose(a::Fst, b::Fst)
 
     # Then combine the rules
     transitions = Set()
-    for a_rule in a.transitions:
-        for b_rule in b.transitions:
+    for a_rule in a.transitions
+        for b_rule in b.transitions
             if a_rule[4] == b_rule[3]
                 transitions = [transitions,
                         rule = ((a_rule[0], b_rule[0]), (a_rule[1], b_rule[1]),
