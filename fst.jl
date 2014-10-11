@@ -22,6 +22,11 @@ function fst2dot(fst::Fst)
     return s
 end
 
+function create_postscript(fst::Fst, filename::String)
+    dotstring = fst2dot(fst)
+    run(`echo $dotstring` |> `dot -Tps -o $filename`)
+end
+
 function add_arc(fst::Fst,
         from::String, to::String,
         input::String, output::String)
