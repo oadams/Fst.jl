@@ -19,11 +19,11 @@ function wfst2dot(wfst::Wfst)
     for node in wfst.states
         nodetext = replace(string(node), r"\"", "\\\"")
         if node in wfst.final_states
-            s = "$s\t\"$nodetext\" [shape=doublecircle,
+            s = "$s\t\"$nodetext\" [shape=doublecircle, color=purple
                 label=\"$nodetext$(haskey(wfst.final_weights, node) ?
                 string("/", wfst.final_weights[node]) : "")\"]\n"
         elseif node in wfst.initial_states
-            s = "$s\t\"$nodetext\" [shape=circle,
+            s = "$s\t\"$nodetext\" [shape=circle, color=green
                 label=\"$nodetext$(haskey(wfst.initial_weights, node) ?
                 string("/", wfst.initial_weights[node]) : "")\"]\n"
         else
@@ -125,7 +125,6 @@ add_arc(a, "3", "3", "a", "a", 0.6)
 add_initial_state(a, "0")
 add_final_state(a, "3")
 a.final_weights["3"] = 0.7
-println(wfst2dot(a))
 create_pdf(a, "a.pdf")
 
 
