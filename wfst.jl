@@ -17,12 +17,17 @@ Wfst() = Wfst(Set(), Set{String}(), Set{String}(), Set(), Set(), Set(),
 function wfst2dot(wfst::Wfst)
     s = "digraph FST {\n"
     for node in wfst.states
+        nodetext = replace(string(node), r"\"", "\\\"")
         if node in wfst.final_states
-            nodetext = replace(string(node), r"\"", "\\\"")
-            s = "$s\t\"$nodetext\" [shape=doublecircle]"
+            s = "$s\t\"$nodetext\" [shape=doublecircle,
+                label=\"$nodetext$(haskey(wfst.final_weights, node) ?
+                string("/", wfst.final_weights[node]) : "")\"]\n"
+        elseif node in wfst.initial_states
+            s = "$s\t\"$nodetext\" [shape=circle,
+                label=\"$nodetext$(haskey(wfst.initial_weights, node) ?
+                string("/", wfst.initial_weights[node]) : "")\"]\n"
         else
-            nodetext = replace(string(node), r"\"", "\\\"")
-            s = "$s\t\"$nodetext\" [shape=circle]"
+            s = "$s\t\"$nodetext\" [shape=circle]\n"
         end
     end
     for rule in wfst.transitions
@@ -117,8 +122,10 @@ add_arc(a, "1", "2", "b", "b", 0.3)
 add_arc(a, "1", "3", "b", "b", 0.4)
 add_arc(a, "2", "3", "a", "b", 0.5)
 add_arc(a, "3", "3", "a", "a", 0.6)
+add_initial_state(a, "0")
 add_final_state(a, "3")
 a.final_weights["3"] = 0.7
+println(wfst2dot(a))
 create_pdf(a, "a.pdf")
 
 
@@ -128,6 +135,7 @@ add_arc(b, "1", "1", "b", "a", 0.2)
 add_arc(b, "1", "2", "a", "b", 0.3)
 add_arc(b, "1", "3", "a", "b", 0.4)
 add_arc(b, "2", "3", "b", "a", 0.5)
+add_initial_state(a, "0")
 add_final_state(a, "3")
 a.final_weights["3"] = 0.6
 create_pdf(b, "b.pdf")
