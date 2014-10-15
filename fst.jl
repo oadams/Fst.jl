@@ -14,10 +14,12 @@ Fst() = Fst(Set(), Set{String}(), Set{String}(), Set(), Set(), Set())
 function fst2dot(fst::Fst)
     s = "digraph FST {\n"
     for rule in fst.transitions
-        println(rule[1])
-        println(string("hello", string(rule[1])))
-        #s = string(s, "\t", rule[1], " -> ", rule[2], ";\n")
-        s = "$s\t$(string(rule[1])) -> $(string(rule[2]))
+        # fromtext and totext used to allow us to prepend quotes in the
+        # actual nodes names with backslashes so that bash pipes the desired
+        # text to graphviz.
+        fromtext = replace(string(rule[1]), r"\"", "\\\"")
+        totext = replace(string(rule[2]), r"\"", "\\\"")
+        s = "$s\t\"$fromtext\" -> \"$totext\"
                 [label=\"$(string(rule[3]))/$(string(rule[4]))\"];\n"
     end
     s = "$s}"
@@ -26,7 +28,7 @@ end
 
 function create_pdf(fst::Fst, filename::String)
     dotstring = fst2dot(fst)
-    run(`echo '$dotstring'` |> `dot -Tpdf -o $filename`)
+    run(`echo $dotstring` |> `dot -Tpdf -o $filename`)
 end
 
 function add_arc(fst::Fst,
@@ -89,7 +91,7 @@ add_arc(a, "1", "0", "a", "b")
 add_arc(a, "1", "2", "b", "b")
 add_arc(a, "2", "3", "a", "b")
 add_arc(a, "1", "3", "b", "b")
-create_pdf(a, "a.pdf")
+#create_pdf(a, "a.pdf")
 
 
 b = Fst()
@@ -99,9 +101,11 @@ add_arc(b, "1", "2", "a", "b")
 add_arc(b, "1", "3", "a", "b")
 add_arc(b, "2", "3", "b", "a")
 #println(fst2dot(b))
-create_pdf(b, "b.pdf")
+#create_pdf(b, "b.pdf")
 
 c = compose(a, b)
-println(fst2dot(c))
+#println(fst2dot(c))
 create_pdf(c, "c.pdf")
 #println("here")
+
+#fst2dot(c)
