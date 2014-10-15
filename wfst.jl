@@ -1,5 +1,5 @@
 # The FST type that doesn't support weighted arcs.
-type Fst
+type Wfst
     states::Set
     input_alphabet::Set{String}
     output_alphabet::Set{String}
@@ -9,11 +9,11 @@ type Fst
 end
 
 # Empty constructor
-Fst() = Fst(Set(), Set{String}(), Set{String}(), Set(), Set(), Set())
+Wfst() = Wfst(Set(), Set{String}(), Set{String}(), Set(), Set(), Set())
 
-function fst2dot(fst::Fst)
+function wfst2dot(wfst::Wfst)
     s = "digraph FST {\n"
-    for rule in fst.transitions
+    for rule in wfst.transitions
         # fromtext and totext used to allow us to prepend quotes in the
         # actual nodes names with backslashes so that bash pipes the desired
         # text to graphviz.
@@ -26,22 +26,22 @@ function fst2dot(fst::Fst)
     return s
 end
 
-function create_pdf(fst::Fst, filename::String)
-    dotstring = fst2dot(fst)
+function create_pdf(wfst::Wfst, filename::String)
+    dotstring = wfst2dot(wfst)
     run(`echo $dotstring` |> `dot -Tpdf -o $filename`)
 end
 
-function add_arc(fst::Fst,
+function add_arc(wfst::Wfst,
         from::String, to::String,
         input::String, output::String, weight::Float64)
-    fst.states = union(fst.states, Set([[from], [to]]))
-    fst.input_alphabet = union(fst.input_alphabet, Set([input]))
-    fst.output_alphabet = union(fst.output_alphabet, Set([output]))
-    fst.transitions =
-            union(fst.transitions, Set([(from, to, input, output, weight)]))
+    wfst.states = union(wfst.states, Set([[from], [to]]))
+    wfst.input_alphabet = union(wfst.input_alphabet, Set([input]))
+    wfst.output_alphabet = union(wfst.output_alphabet, Set([output]))
+    wfst.transitions =
+            union(wfst.transitions, Set([(from, to, input, output, weight)]))
 end
 
-function compose(a::Fst, b::Fst)
+function compose(a::Wfst, b::Wfst)
     # Check that the output alphabet of a matches the input alphabet of b
 
     # New states are the cross product of the states of the two FSTs
@@ -75,28 +75,28 @@ function compose(a::Fst, b::Fst)
     # Then consider removing unreachable states and transitions that cannot
     # occur
 
-    # Then create the new fst and return it
+    # Then create the new wfst and return it
     #println(typeof(states))
     #println(typeof(input_alphabet))
     #println(typeof(output_alphabet))
     #println(typeof(initial_states))
     ###println(typeof(final_states))
     #println(typeof(transitions))
-    return Fst(states, input_alphabet, output_alphabet, initial_states,
+    return Wfst(states, input_alphabet, output_alphabet, initial_states,
            final_states, transitions)
 end
 
-a = Fst()
+a = Wfst()
 add_arc(a, "0", "1", "a", "b", 0.1)
 add_arc(a, "1", "0", "a", "b", 0.2)
 add_arc(a, "1", "2", "b", "b", 0.3)
 add_arc(a, "1", "3", "b", "b", 0.4)
 add_arc(a, "2", "3", "a", "b", 0.5)
-fst2dot(a)
+wfst2dot(a)
 create_pdf(a, "a.pdf")
 
 
-b = Fst()
+b = Wfst()
 add_arc(b, "0", "1", "b", "b", 0.1)
 add_arc(b, "1", "1", "b", "a", 0.2)
 add_arc(b, "1", "2", "a", "b", 0.3)
