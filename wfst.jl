@@ -6,13 +6,25 @@ type Wfst
     initial_states::Set
     final_states::Set
     transitions::Set
+    initial_weights::Dict
+    final_weights::Dict
 end
 
 # Empty constructor
-Wfst() = Wfst(Set(), Set{String}(), Set{String}(), Set(), Set(), Set())
+Wfst() = Wfst(Set(), Set{String}(), Set{String}(), Set(), Set(), Set(),
+            Dict(), Dict())
 
 function wfst2dot(wfst::Wfst)
     s = "digraph FST {\n"
+    for node in wfst.states
+        if node in wfst.final_states
+            nodetext = replace(string(node), r"\"", "\\\"")
+            s = "$s\t\"$nodetext\" [shape=doublecircle]"
+        else
+            nodetext = replace(string(node), r"\"", "\\\"")
+            s = "$s\t\"$nodetext\" [shape=circle]"
+        end
+    end
     for rule in wfst.transitions
         # fromtext and totext used to allow us to prepend quotes in the
         # actual nodes names with backslashes so that bash pipes the desired
@@ -20,7 +32,7 @@ function wfst2dot(wfst::Wfst)
         fromtext = replace(string(rule[1]), r"\"", "\\\"")
         totext = replace(string(rule[2]), r"\"", "\\\"")
         s = "$s\t\"$fromtext\" -> \"$totext\"
-                [label=\"$(string(rule[3])):$(string(rule[4]))/$(rule[5])\"];\n"
+             [label=\"$(string(rule[3])):$(string(rule[4]))/$(rule[5])\"];\n"
     end
     s = "$s}"
     return s
@@ -86,13 +98,25 @@ function compose(a::Wfst, b::Wfst)
            final_states, transitions)
 end
 
+# Add a state to the final states list
+function add_final_state(wfst::Wfst, state::String)
+    wfst.final_states = union(wfst.final_states, Set([state]))
+end
+
+# Add a state to the initial states list
+function add_initial_state(wfst::Wfst, state::String)
+    wfst.initial_states = union(wfst.initial_states, Set([state]))
+end
+
 a = Wfst()
 add_arc(a, "0", "1", "a", "b", 0.1)
 add_arc(a, "1", "0", "a", "b", 0.2)
 add_arc(a, "1", "2", "b", "b", 0.3)
 add_arc(a, "1", "3", "b", "b", 0.4)
 add_arc(a, "2", "3", "a", "b", 0.5)
-wfst2dot(a)
+add_arc(a, "3", "3", "a", "a", 0.6)
+add_final_state(a, "3")
+a.final_weights["3"] = 0.7
 create_pdf(a, "a.pdf")
 
 
@@ -102,6 +126,8 @@ add_arc(b, "1", "1", "b", "a", 0.2)
 add_arc(b, "1", "2", "a", "b", 0.3)
 add_arc(b, "1", "3", "a", "b", 0.4)
 add_arc(b, "2", "3", "b", "a", 0.5)
+add_final_state(a, "3")
+a.final_weights["3"] = 0.6
 create_pdf(b, "b.pdf")
 
 #c = compose(a, b)
