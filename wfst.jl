@@ -59,48 +59,47 @@ function add_arc(wfst::Wfst,
 end
 
 function compose(a::Wfst, b::Wfst)
-    # Check that the output alphabet of a matches the input alphabet of b
+    # Note that we're going with the probability semiring right now.
 
-    # New states are the cross product of the states of the two FSTs
-    states = Set([(x,y) for x in a.states, y in b.states])
-    ##println(states)
-
-    # New initial_states and final_states are created similarly
-    initial_states =
-            Set([(x,y) for x in a.initial_states, y in b.initial_states])
-    ##println(initial_states)
-    final_states =
-            Set([(x,y) for x in a.final_states, y in b.final_states])
-    #println(final_states)
-
-    # Then combine the rules
-    transitions = Set()
-    for a_rule in a.transitions
-        for b_rule in b.transitions
-            if a_rule[4] == b_rule[3]
-                transitions = union(transitions,
-                        Set([((a_rule[1], b_rule[1]), (a_rule[2], b_rule[2]),
-                        a_rule[3], b_rule[4])]))
-            end
-        end
-    end
-    #println(transitions)
-
+    # The input and output alphabets are those of a and b respectively
+    @assert a.output_alphabet == b.input_alphabet
     input_alphabet = a.input_alphabet
     output_alphabet = b.output_alphabet
 
+    # Initial states are the cross product of the states of the two FSTs
+    initial_states =
+            Set([(x,y) for x in a.initial_states, y in b.initial_states])
+    for state in initial_states
+        # This is going to cause things to blow up (we don't enforce weights)
+        initial_weights[state] =
+                a.initial_weights[state[1]] * b.initial_weights[state[2]]
+    end
+    # States start with the initial states
+    states = Set([(x,y) for x in a.initial_states, y in b.initial_states])
+    # Our queue also starts with the initial states
+    K = [(x,y) for x in a.initial_states, y in b.initial_states]
+    # Let the final states start empty
+    final_states = Set()
+
+    while K != []
+        q = shift!(K)
+        if state in [(x,y) for x in a.final_states, y in b.final_states]
+            final_states = union(final_states, Set(state))
+            final_weights[state] = a.final_weights[state[1]] *
+                    b.final_weights[state[2]]
+        end
+        for rule_combo in [(x,y) for x in a.transitions, y in b.transitions]
+            # If the output of the a rule == the input of the b rule
+            if rule_combo[1][4] == rule_combo[2,3]
+                
+            end
+        end
+    end
+
     # Then consider removing unreachable states and transitions that cannot
     # occur
-
-    # Then create the new wfst and return it
-    #println(typeof(states))
-    #println(typeof(input_alphabet))
-    #println(typeof(output_alphabet))
-    #println(typeof(initial_states))
-    ###println(typeof(final_states))
-    #println(typeof(transitions))
     return Wfst(states, input_alphabet, output_alphabet, initial_states,
-           final_states, transitions)
+           final_states, transitions, initial_weights, final_weights)
 end
 
 # Add a state to the final states list
