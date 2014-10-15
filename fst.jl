@@ -20,7 +20,7 @@ function fst2dot(fst::Fst)
         fromtext = replace(string(rule[1]), r"\"", "\\\"")
         totext = replace(string(rule[2]), r"\"", "\\\"")
         s = "$s\t\"$fromtext\" -> \"$totext\"
-                [label=\"$(string(rule[3]))/$(string(rule[4]))\"];\n"
+                [label=\"$(string(rule[3])):$(string(rule[4]))/$(rule[5])\"];\n"
     end
     s = "$s}"
     return s
@@ -33,11 +33,12 @@ end
 
 function add_arc(fst::Fst,
         from::String, to::String,
-        input::String, output::String)
+        input::String, output::String, weight::Float64)
     fst.states = union(fst.states, Set([[from], [to]]))
     fst.input_alphabet = union(fst.input_alphabet, Set([input]))
     fst.output_alphabet = union(fst.output_alphabet, Set([output]))
-    fst.transitions = union(fst.transitions, Set([(from, to, input, output)]))
+    fst.transitions =
+            union(fst.transitions, Set([(from, to, input, output, weight)]))
 end
 
 function compose(a::Fst, b::Fst)
@@ -86,26 +87,22 @@ function compose(a::Fst, b::Fst)
 end
 
 a = Fst()
-add_arc(a, "0", "1", "a", "b")
-add_arc(a, "1", "0", "a", "b")
-add_arc(a, "1", "2", "b", "b")
-add_arc(a, "2", "3", "a", "b")
-add_arc(a, "1", "3", "b", "b")
-#create_pdf(a, "a.pdf")
+add_arc(a, "0", "1", "a", "b", 0.1)
+add_arc(a, "1", "0", "a", "b", 0.2)
+add_arc(a, "1", "2", "b", "b", 0.3)
+add_arc(a, "1", "3", "b", "b", 0.4)
+add_arc(a, "2", "3", "a", "b", 0.5)
+fst2dot(a)
+create_pdf(a, "a.pdf")
 
 
 b = Fst()
-add_arc(b, "0", "1", "b", "b")
-add_arc(b, "1", "1", "b", "a")
-add_arc(b, "1", "2", "a", "b")
-add_arc(b, "1", "3", "a", "b")
-add_arc(b, "2", "3", "b", "a")
-#println(fst2dot(b))
-#create_pdf(b, "b.pdf")
+add_arc(b, "0", "1", "b", "b", 0.1)
+add_arc(b, "1", "1", "b", "a", 0.2)
+add_arc(b, "1", "2", "a", "b", 0.3)
+add_arc(b, "1", "3", "a", "b", 0.4)
+add_arc(b, "2", "3", "b", "a", 0.5)
+create_pdf(b, "b.pdf")
 
-c = compose(a, b)
-#println(fst2dot(c))
-create_pdf(c, "c.pdf")
-#println("here")
-
-#fst2dot(c)
+#c = compose(a, b)
+#create_pdf(c, "c.pdf")
