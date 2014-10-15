@@ -100,11 +100,13 @@ end
 
 # Add a state to the final states list
 function add_final_state(wfst::Wfst, state::String)
+    @assert state in wfst.states
     wfst.final_states = union(wfst.final_states, Set([state]))
 end
 
 # Add a state to the initial states list
 function add_initial_state(wfst::Wfst, state::String)
+    @assert state in wfst.states
     wfst.initial_states = union(wfst.initial_states, Set([state]))
 end
 
