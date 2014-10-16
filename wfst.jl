@@ -114,6 +114,11 @@ function compose(a::Wfst, b::Wfst)
                         states = union(states, Set([next_state]))
                         push!(queue, next_state)
                     end
+                    new_rule = (state,next_state,
+                            rule_combo[1][3],rule_combo[2][4],
+                            rule_combo[1][5]*rule_combo[2][5])
+                    debug(string("new_rule: ", new_rule))
+                    transitions = union(transitions, Set([new_rule]))
                 end
             end
         end
