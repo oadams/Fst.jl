@@ -123,6 +123,8 @@ function compose(a::Wfst, b::Wfst)
                 end
             end
         end
+        # If the state isn't a final state and doesn't have any arcs going
+        # anywhere else
     end
 
     # Then consider removing unreachable states and transitions that cannot

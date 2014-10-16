@@ -49,3 +49,14 @@ How does our type hierarchy work?
 	instantiated.
 	FSM -> FSA, FST
 	FST -> WFST, Unweighted FST
+
+In composition, do we need to get rid of arcs and nodes that can't get to the
+final state?
+
+What should the name of the package be called?
+
+	Probably Fst.jl (consistent with OpenFst and PyFst but using the Julia
+	naming convention)
+
+Should quotes be put around node sub-names in tuples in wfst2dot?
+	Perhaps not.
