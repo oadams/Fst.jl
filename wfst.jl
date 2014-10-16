@@ -95,12 +95,13 @@ function compose(a::Wfst, b::Wfst)
     final_weights = Dict()
     transitions = Set()
 
+
     while queue != []
         debug(string("queue: ", queue))
         state = shift!(queue)
         if state in [(x,y) for x in a.final_states, y in b.final_states]
-            debug(string("state ", states, " in final state cross product."))
-            final_states = union(final_states, Set(state))
+            debug(string("state ", state, " in final state cross product."))
+            final_states = union(final_states, Set([state]))
             final_weights[state] = a.final_weights[state[1]] *
                     b.final_weights[state[2]]
         end
