@@ -1,3 +1,5 @@
+using Lumberjack
+
 # The FST type that doesn't support weighted arcs.
 type Wfst
     states::Set
@@ -65,33 +67,54 @@ function compose(a::Wfst, b::Wfst)
     @assert a.output_alphabet == b.input_alphabet
     input_alphabet = a.input_alphabet
     output_alphabet = b.output_alphabet
+    debug("a.output_alphabet == b.input_alphabet")
 
     # Initial states are the cross product of the states of the two FSTs
     initial_states =
             Set([(x,y) for x in a.initial_states, y in b.initial_states])
+    debug(string("initial_states: ", initial_states))
+
+    # Initialize the weights for the initial states
+    initial_weights = Dict()
     for state in initial_states
         # This is going to cause things to blow up (we don't enforce weights)
-        initial_weights[state] =
-                a.initial_weights[state[1]] * b.initial_weights[state[2]]
+        if haskey(a.initial_weights, state[1]) &&
+                haskey(b.initial_weights, state[2])
+            initial_weights[state] =
+                    a.initial_weights[state[1]] * b.initial_weights[state[2]]
+        end
     end
+    debug(string("initial_weights: ", initial_weights))
     # States start with the initial states
     states = Set([(x,y) for x in a.initial_states, y in b.initial_states])
     # Our queue also starts with the initial states
-    K = [(x,y) for x in a.initial_states, y in b.initial_states]
+    queue = [(x,y) for x in a.initial_states, y in b.initial_states]
+    queue = reshape(queue, length(queue))
     # Let the final states start empty
     final_states = Set()
+    final_weights = Dict()
+    transitions = Set()
 
-    while K != []
-        q = shift!(K)
+    while queue != []
+        debug(string("queue: ", queue))
+        state = shift!(queue)
         if state in [(x,y) for x in a.final_states, y in b.final_states]
+            debug(string("state ", states, " in final state cross product."))
             final_states = union(final_states, Set(state))
             final_weights[state] = a.final_weights[state[1]] *
                     b.final_weights[state[2]]
         end
+        # For each rule combination that travels from the states of 'a' and 'b'
         for rule_combo in [(x,y) for x in a.transitions, y in b.transitions]
-            # If the output of the a rule == the input of the b rule
-            if rule_combo[1][4] == rule_combo[2,3]
-                
+            if rule_combo[1][1] == state[1] && rule_combo[2][1] == state[2]
+                # If the output of the 'a' rule == the input of the 'b' rule
+                if rule_combo[1][4] == rule_combo[2][3]
+                    next_state = (rule_combo[1][2], rule_combo[2][2])
+                    if !(next_state in states)
+                        states = union(states, Set([next_state]))
+                        push!(queue, next_state)
+                    end
+                end
             end
         end
     end
@@ -133,10 +156,10 @@ add_arc(b, "1", "1", "b", "a", 0.2)
 add_arc(b, "1", "2", "a", "b", 0.3)
 add_arc(b, "1", "3", "a", "b", 0.4)
 add_arc(b, "2", "3", "b", "a", 0.5)
-add_initial_state(a, "0")
-add_final_state(a, "3")
-a.final_weights["3"] = 0.6
+add_initial_state(b, "0")
+add_final_state(b, "3")
+b.final_weights["3"] = 0.6
 create_pdf(b, "b.pdf")
 
-#c = compose(a, b)
-#create_pdf(c, "c.pdf")
+c = compose(a, b)
+create_pdf(c, "c.pdf")
