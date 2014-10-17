@@ -1,19 +1,21 @@
-Do we allow states to have names?
+Do we allow states to have names other than integers?
 
-	Sure, why not?
+	Sure, why not? Note that at the moment the compose function creates states
+	whose names are tuples of the corresponding states in the supplied wfsts.
 
-What order do we give the fields of the Fst type? What order do we give the
+What order do we give the fields of the Wfst type? What order do we give the
 arguments of add_arc?
 
-	For add_arc, opted to go for from_state, to_state, input, output
+	For add_arc, opted to go for from_state, to_state, input, output, weight.
 
 Should we have a transition matrix, or simply a vector that contains tuples
 that correspond to certain arcs?
 
-	For now, decided not to. It only serves to aid lookup of weights. It isn't
-	clear that this is what is needed (we might be more concerned in lookup of
-	other things), so the extra work isn't worth it. Instead I'm just going
-	with a set of tuples, as per the formalism.
+	For now, decided it makes more sense to just include a vector of rules. The
+	former would have only served to aid lookup of weights. It isn't clear that
+	this is what is needed (we might be more concerned in lookup of other
+	things), so the extra work isn't worth it. Instead I'm just going with a
+	set of tuples, as per the WFST formalism.
 
 Do we need to create a dictionary to map state names, inputs and outputs into
 indices for lookup in the transitions matrix, or can we just lookup the index
@@ -45,22 +47,23 @@ formal construction, or longer human readable names?
 
 How does our type hierarchy work?
 
-	Perhaps something like this, but remember that abstract types can't be
-	instantiated.
-	FSM -> FSA, FST
-	FST -> WFST, Unweighted FST
+	I think for the moment there won't be a type hierarchy. I'm starting with a
+	Wfst type. I might need to make an Fsa/Wfsa type for linear chains.
 
 In composition, do we need to get rid of arcs and nodes that can't get to the
 final state (ie. the "dead ends")?
+
 	I suspect it won't be a problem for forward-backward sampling but it would
 	be good to include code to trim these at some point.
 
 What should the name of the package be called?
 
-	Probably Fst.jl (consistent with OpenFst and PyFst but using the Julia
-	naming convention)
+	Probably Fst.jl since it's consistent with OpenFst and PyFst but using the
+	Julia naming convention. (Unfortunately it seems like this means we can't
+	have an Fst type, so for that I'm going with Wfst).
 
 Should quotes be put around node sub-names in tuples in wfst2dot?
+
 	Perhaps not.
 
 What assertions and other checks should be in place to ensure that the FSTs
