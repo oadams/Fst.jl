@@ -1,0 +1,73 @@
+Do we allow states to have names?
+
+	Sure, why not?
+
+What order do we give the fields of the Fst type? What order do we give the
+arguments of add_arc?
+
+	For add_arc, opted to go for from_state, to_state, input, output
+
+Should we have a transition matrix, or simply a vector that contains tuples
+that correspond to certain arcs?
+
+	For now, decided not to. It only serves to aid lookup of weights. It isn't
+	clear that this is what is needed (we might be more concerned in lookup of
+	other things), so the extra work isn't worth it. Instead I'm just going
+	with a set of tuples, as per the formalism.
+
+Do we need to create a dictionary to map state names, inputs and outputs into
+indices for lookup in the transitions matrix, or can we just lookup the index
+each time?
+
+	See above, at the moment there won't be any transition matrix.
+
+How do we make good unit tests for this?
+
+What functionality are we aiming for? Design with that in mind.
+
+	My immediate practical requirements for the paper are a weighted
+	finite-state transducer type with a composition operator and methods to
+	perform forward filtering / backward sampling. That's about it. Oh and an
+	FSA type for linear chains.
+
+	Basic other operations include functions to create graphical
+	representations using Graphviz, perhaps tying this into IJulia some way in
+	the spirit of IPython.Display (not sure where IJUlia is on this front yet).
+
+	Also, fundamental operations listed on the FST wikipedia page and Pyfst
+	should be included.
+
+How should we name the fields of the Fst? With greek names in line with the
+formal construction, or longer human readable names?
+
+	For now, going with human readable names. It can all be changed later if
+	need be.
+
+How does our type hierarchy work?
+
+	Perhaps something like this, but remember that abstract types can't be
+	instantiated.
+	FSM -> FSA, FST
+	FST -> WFST, Unweighted FST
+
+In composition, do we need to get rid of arcs and nodes that can't get to the
+final state (ie. the "dead ends")?
+	I suspect it won't be a problem for forward-backward sampling but it would
+	be good to include code to trim these at some point.
+
+What should the name of the package be called?
+
+	Probably Fst.jl (consistent with OpenFst and PyFst but using the Julia
+	naming convention)
+
+Should quotes be put around node sub-names in tuples in wfst2dot?
+	Perhaps not.
+
+What assertions and other checks should be in place to ensure that the FSTs
+make sense?
+
+What should the initial and final weights default to? Is it okay for them to
+have no weight?
+
+If I add support for arbitrary semirings, what constraints do I need to put on
+them?
