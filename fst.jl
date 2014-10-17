@@ -1,7 +1,7 @@
 using Lumberjack
 
 # The FST type that doesn't support weighted arcs.
-type Wfst
+type Fst
     states::Set
     input_alphabet::Set{String}
     output_alphabet::Set{String}
@@ -13,26 +13,26 @@ type Wfst
 end
 
 # Empty constructor
-Wfst() = Wfst(Set(), Set{String}(), Set{String}(), Set(), Set(), Set(),
+Fst() = Fst(Set(), Set{String}(), Set{String}(), Set(), Set(), Set(),
             Dict(), Dict())
 
-function wfst2dot(wfst::Wfst)
+function fst2dot(fst::Fst)
     s = "digraph FST {\n"
-    for node in wfst.states
+    for node in fst.states
         nodetext = replace(string(node), r"\"", "\\\"")
-        if node in wfst.final_states
+        if node in fst.final_states
             s = "$s\t\"$nodetext\" [shape=doublecircle, color=purple
-                label=\"$nodetext$(haskey(wfst.final_weights, node) ?
-                string("/", wfst.final_weights[node]) : "")\"]\n"
-        elseif node in wfst.initial_states
+                label=\"$nodetext$(haskey(fst.final_weights, node) ?
+                string("/", fst.final_weights[node]) : "")\"]\n"
+        elseif node in fst.initial_states
             s = "$s\t\"$nodetext\" [shape=circle, color=green
-                label=\"$nodetext$(haskey(wfst.initial_weights, node) ?
-                string("/", wfst.initial_weights[node]) : "")\"]\n"
+                label=\"$nodetext$(haskey(fst.initial_weights, node) ?
+                string("/", fst.initial_weights[node]) : "")\"]\n"
         else
             s = "$s\t\"$nodetext\" [shape=circle]\n"
         end
     end
-    for rule in wfst.transitions
+    for rule in fst.transitions
         # fromtext and totext used to allow us to prepend quotes in the
         # actual nodes names with backslashes so that bash pipes the desired
         # text to graphviz.
@@ -45,22 +45,22 @@ function wfst2dot(wfst::Wfst)
     return s
 end
 
-function create_pdf(wfst::Wfst, filename::String)
-    dotstring = wfst2dot(wfst)
+function create_pdf(fst::Fst, filename::String)
+    dotstring = fst2dot(fst)
     run(`echo $dotstring` |> `dot -Tpdf -o $filename`)
 end
 
-function add_arc(wfst::Wfst,
+function add_arc(fst::Fst,
         from::String, to::String,
         input::String, output::String, weight::Float64)
-    wfst.states = union(wfst.states, Set([[from], [to]]))
-    wfst.input_alphabet = union(wfst.input_alphabet, Set([input]))
-    wfst.output_alphabet = union(wfst.output_alphabet, Set([output]))
-    wfst.transitions =
-            union(wfst.transitions, Set([(from, to, input, output, weight)]))
+    fst.states = union(fst.states, Set([[from], [to]]))
+    fst.input_alphabet = union(fst.input_alphabet, Set([input]))
+    fst.output_alphabet = union(fst.output_alphabet, Set([output]))
+    fst.transitions =
+            union(fst.transitions, Set([(from, to, input, output, weight)]))
 end
 
-function compose(a::Wfst, b::Wfst)
+function compose(a::Fst, b::Fst)
     # Note that we're going with the probability semiring right now.
 
     # The input and output alphabets are those of a and b respectively
@@ -127,7 +127,7 @@ function compose(a::Wfst, b::Wfst)
 
     # Then consider removing unreachable states and transitions that cannot
     # occur
-    return Wfst(states, input_alphabet, output_alphabet, initial_states,
+    return Fst(states, input_alphabet, output_alphabet, initial_states,
            final_states, transitions, initial_weights, final_weights)
 end
 
@@ -135,18 +135,18 @@ end
 (>>) = compose
 
 # Add a state to the final states list
-function add_final_state(wfst::Wfst, state::String)
-    @assert state in wfst.states
-    wfst.final_states = union(wfst.final_states, Set([state]))
+function add_final_state(fst::Fst, state::String)
+    @assert state in fst.states
+    fst.final_states = union(fst.final_states, Set([state]))
 end
 
 # Add a state to the initial states list
-function add_initial_state(wfst::Wfst, state::String)
-    @assert state in wfst.states
-    wfst.initial_states = union(wfst.initial_states, Set([state]))
+function add_initial_state(fst::Fst, state::String)
+    @assert state in fst.states
+    fst.initial_states = union(fst.initial_states, Set([state]))
 end
 
-a = Wfst()
+a = Fst()
 add_arc(a, "0", "1", "a", "b", 0.1)
 add_arc(a, "1", "0", "a", "b", 0.2)
 add_arc(a, "1", "2", "b", "b", 0.3)
@@ -159,7 +159,7 @@ a.final_weights["3"] = 0.7
 create_pdf(a, "a.pdf")
 
 
-b = Wfst()
+b = Fst()
 add_arc(b, "0", "1", "b", "b", 0.1)
 add_arc(b, "1", "1", "b", "a", 0.2)
 add_arc(b, "1", "2", "a", "b", 0.3)

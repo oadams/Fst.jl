@@ -51,7 +51,9 @@ How does our type hierarchy work?
 	FST -> WFST, Unweighted FST
 
 In composition, do we need to get rid of arcs and nodes that can't get to the
-final state?
+final state (ie. the "dead ends")?
+	I suspect it won't be a problem for forward-backward sampling but it would
+	be good to include code to trim these at some point.
 
 What should the name of the package be called?
 
@@ -60,3 +62,12 @@ What should the name of the package be called?
 
 Should quotes be put around node sub-names in tuples in wfst2dot?
 	Perhaps not.
+
+What assertions and other checks should be in place to ensure that the FSTs
+make sense?
+
+What should the initial and final weights default to? Is it okay for them to
+have no weight?
+
+If I add support for arbitrary semirings, what constraints do I need to put on
+them?
