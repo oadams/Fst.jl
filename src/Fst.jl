@@ -153,6 +153,17 @@ function add_initial_state(wfst::Wfst, state::String)
     wfst.initial_states = union(wfst.initial_states, Set([state]))
 end
 
+# Returns a topolically sorted ordering of the states in the supplied wfst.
+function topological_sort(wfst::Wfst)
+    L = []
+end
+
+# Returns a set of states that have no edges coming in.
+function states_with_no_in_edges(wfst::Wfst)
+    states_with_in_edges = Set([rule[2] for rule in wfst.transitions])
+    return setdiff(wfst.states, states_with_in_edges)
+end
+
 a = Wfst()
 add_arc(a, "0", "1", "a", "b", 0.1)
 add_arc(a, "1", "0", "a", "b", 0.2)
@@ -179,5 +190,9 @@ create_pdf(b, "b.pdf")
 
 c = compose(a, b)
 create_pdf(c, "c.pdf")
+
+println(states_with_no_in_edges(a))
+println(states_with_no_in_edges(b))
+println(states_with_no_in_edges(c))
 
 end

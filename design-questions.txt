@@ -74,3 +74,5 @@ have no weight?
 
 If I add support for arbitrary semirings, what constraints do I need to put on
 them?
+
+What standard should I adhere to for referring to nodes/edges states/arcs?
