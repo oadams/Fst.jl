@@ -123,8 +123,6 @@ function compose(a::Wfst, b::Wfst)
                 end
             end
         end
-        # If the state isn't a final state and doesn't have any arcs going
-        # anywhere else
     end
 
     # Then consider removing unreachable states and transitions that cannot
@@ -132,6 +130,9 @@ function compose(a::Wfst, b::Wfst)
     return Wfst(states, input_alphabet, output_alphabet, initial_states,
            final_states, transitions, initial_weights, final_weights)
 end
+
+# Add a compose operator in the same style as pyfst
+(>>) = compose
 
 # Add a state to the final states list
 function add_final_state(wfst::Wfst, state::String)
