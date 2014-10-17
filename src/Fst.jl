@@ -2,14 +2,16 @@ module Fst
 
 using Lumberjack
 
-# The FST type that doesn't support weighted arcs.
+# The weighted FST type.
 type Wfst
     states::Set
     input_alphabet::Set{String}
     output_alphabet::Set{String}
     initial_states::Set
     final_states::Set
+    # Transition rules of the form: (fromstate, tostate, input, output, weight)
     transitions::Set
+    # Maps from initial and final states to their weights.
     initial_weights::Dict
     final_weights::Dict
 end
@@ -18,6 +20,8 @@ end
 Wfst() = Wfst(Set(), Set{String}(), Set{String}(), Set(), Set(), Set(),
             Dict(), Dict())
 
+# Returns a string representation of the supplied WFST in the DOT language for
+# use with Graphviz.
 function wfst2dot(wfst::Wfst)
     s = "digraph FST {\n"
     for node in wfst.states
@@ -79,7 +83,6 @@ function compose(a::Wfst, b::Wfst)
     # Initialize the weights for the initial states
     initial_weights = Dict()
     for state in initial_states
-        # This is going to cause things to blow up (we don't enforce weights)
         if haskey(a.initial_weights, state[1]) &&
                 haskey(b.initial_weights, state[2])
             initial_weights[state] =
@@ -98,6 +101,8 @@ function compose(a::Wfst, b::Wfst)
     transitions = Set()
 
 
+    # From the starting states, propagate through the Fst along possible
+    # composed paths adding states and weights as we go.
     while queue != []
         debug(string("queue: ", queue))
         state = shift!(queue)
