@@ -155,7 +155,33 @@ end
 
 # Returns a topolically sorted ordering of the states in the supplied wfst.
 function topological_sort(wfst::Wfst)
-    L = []
+    graph = deepcopy(wfst)
+    l = Any[]
+    s = states_with_no_in_edges(wfst)
+    while length(s) > 0
+        n = pop!(s)
+        push!(l, n)
+        debug(string("s: ", s))
+        debug(string("l: ", l))
+        # Remove edges that lead from n to other nodes
+        for rule in graph.transitions
+            if rule[1] == n
+                debug(string("rule to delete: ", rule))
+                graph.transitions = setdiff(graph.transitions, Set([rule]))
+                debug(string("graph.transitions: ", graph.transitions))
+                # Add to the queue those other nodes have other incoming edges.
+                if rule[2] in states_with_no_in_edges(graph)
+                    s = union(s, Set([rule[2]]))
+                end
+            end
+        end
+    end
+    debug(string("graph.transitions: ", graph.transitions))
+    if length(graph.transitions) > 0
+        error("Graph is cyclic.")
+    else
+        return l
+    end
 end
 
 # Returns a set of states that have no edges coming in.
@@ -179,7 +205,7 @@ create_pdf(a, "a.pdf")
 
 b = Wfst()
 add_arc(b, "0", "1", "b", "b", 0.1)
-add_arc(b, "1", "1", "b", "a", 0.2)
+#add_arc(b, "1", "1", "b", "a", 0.2)
 add_arc(b, "1", "2", "a", "b", 0.3)
 add_arc(b, "1", "3", "a", "b", 0.4)
 add_arc(b, "2", "3", "b", "a", 0.5)
@@ -194,5 +220,9 @@ create_pdf(c, "c.pdf")
 println(states_with_no_in_edges(a))
 println(states_with_no_in_edges(b))
 println(states_with_no_in_edges(c))
+
+#println(topological_sort(a))
+println(topological_sort(b))
+println(topological_sort(c))
 
 end

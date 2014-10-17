@@ -75,4 +75,14 @@ have no weight?
 If I add support for arbitrary semirings, what constraints do I need to put on
 them?
 
-What standard should I adhere to for referring to nodes/edges states/arcs?
+What standard should I adhere to for referring to nodes/edges
+states/arcs/rules?
+
+Now that I'm including some more general-graph functions I should really start
+thinking about a type hierarchy so that they don't have to just apply to Wfsts.
+
+Perhaps making each rule a type would help readability (we're doing a lot
+of indexing on the rule tuples). So we could have edge.input, edge.output,
+edge.weight, edge.from, edge.to.
+
+I should probably add exclamation marks to destructive methods
