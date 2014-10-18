@@ -7,13 +7,13 @@ function wfst2dot(wfst::Wfst)
     for node in wfst.states
         nodetext = replace(string(node), r"\"", "\\\"")
         if node in wfst.final_states
-            s = "$s\t\"$nodetext\" [shape=doublecircle, color=purple
-                label=\"$nodetext$(haskey(wfst.final_weights, node) ?
-                string("/", wfst.final_weights[node]) : "")\"]\n"
+            s = string("$s\t\"$nodetext\" [shape=doublecircle, color=purple, ",
+                "label=\"$nodetext$(haskey(wfst.final_weights, node) ?
+                string("/", wfst.final_weights[node]) : "")\"]\n")
         elseif node in wfst.initial_states
-            s = "$s\t\"$nodetext\" [shape=circle, color=green
-                label=\"$nodetext$(haskey(wfst.initial_weights, node) ?
-                string("/", wfst.initial_weights[node]) : "")\"]\n"
+            s = string("$s\t\"$nodetext\" [shape=circle, color=green, ",
+                "label=\"$nodetext$(haskey(wfst.initial_weights, node) ?
+                string("/", wfst.initial_weights[node]) : "")\"]\n")
         else
             s = "$s\t\"$nodetext\" [shape=circle]\n"
         end
@@ -24,7 +24,7 @@ function wfst2dot(wfst::Wfst)
         # text to graphviz.
         fromtext = replace(string(arc.from), r"\"", "\\\"")
         totext = replace(string(arc.to), r"\"", "\\\"")
-        s = string("$s\t\"$fromtext\" -> \"$totext\",",
+        s = string("$s\t\"$fromtext\" -> \"$totext\" ",
              "[label=\"$(string(arc.input)):$(string(arc.output))",
              "/$(arc.weight)\"];\n")
     end

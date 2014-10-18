@@ -1,7 +1,6 @@
 using Lumberjack
 
-export Wfst, Arc, add_arc!, add_initial_state!,
-        add_final_state!, compose, topological_sort
+export Wfst, Arc, add_arc!, add_initial_state!, add_final_state!
 
 # The arc type that specify "arcs", "edges" or "transition rules".
 type Arc
@@ -51,4 +50,3 @@ function add_arc!(wfst::Wfst,
     wfst.arcs =
             union(wfst.arcs, Set([Arc(from, to, input, output, weight)]))
 end
-

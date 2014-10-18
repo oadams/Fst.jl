@@ -103,3 +103,9 @@ states/arcs/rules? At the moment it's a bit all over the place.
 
 Should add_arc! take arbitrary types as input, given that states can be of any
 type? We might need to maintain constraints for outputting to DOT.
+
+Should epsilon transitions be a special type, or just a string such as
+"<epsilon>"?
+
+	For now I'm going with the special string since it means we can keep the
+	input and output fields of arcs as Strings.
