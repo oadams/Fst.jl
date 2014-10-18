@@ -24,9 +24,9 @@ function wfst2dot(wfst::Wfst)
         # text to graphviz.
         fromtext = replace(string(arc.from), r"\"", "\\\"")
         totext = replace(string(arc.to), r"\"", "\\\"")
-        s = "$s\t\"$fromtext\" -> \"$totext\"
-             [label=\"$(string(arc.input)):$(string(arc.output))
-             /$(arc.weight)\"];\n"
+        s = string("$s\t\"$fromtext\" -> \"$totext\",",
+             "[label=\"$(string(arc.input)):$(string(arc.output))",
+             "/$(arc.weight)\"];\n")
     end
     s = "$s}"
     return s
