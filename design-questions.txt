@@ -101,6 +101,5 @@ them?
 What standard should I adhere to for referring to nodes/edges
 states/arcs/rules? At the moment it's a bit all over the place.
 
-Perhaps making each rule a type would help readability (we're doing a lot
-of indexing on the rule tuples). So we could have edge.input, edge.output,
-edge.weight, edge.from, edge.to.
+Should add_arc! take arbitrary types as input, given that states can be of any
+type? We might need to maintain constraints for outputting to DOT.

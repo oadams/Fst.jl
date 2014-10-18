@@ -2,22 +2,8 @@ module Fst
 
 using Lumberjack
 
-export Wfst, wfst2dot, create_pdf, add_arc, add_initial_state, add_final_state,
-        compose, states_with_no_in_edges, topological_sort
-
-# The weighted FST type.
-type Wfst
-    states::Set
-    input_alphabet::Set{String}
-    output_alphabet::Set{String}
-    initial_states::Set
-    final_states::Set
-    # Transition rules of the form: (fromstate, tostate, input, output, weight)
-    arcs::{Arc}
-    # Maps from initial and final states to their weights.
-    initial_weights::Dict
-    final_weights::Dict
-end
+export Wfst, Arc, wfst2dot, create_pdf, add_arc!, add_initial_state!,
+        add_final_state!, compose, states_with_no_in_arcs, topological_sort
 
 # The arc type that specify "arcs", "edges" or "transition rules".
 type Arc
@@ -28,9 +14,23 @@ type Arc
     weight::Float64
 end
 
+# The weighted FST type.
+type Wfst
+    states::Set
+    input_alphabet::Set{String}
+    output_alphabet::Set{String}
+    initial_states::Set
+    final_states::Set
+    # Arcs of the form: (from, to, input, output, weight)
+    arcs::Set{Arc}
+    # Maps from initial and final states to their weights.
+    initial_weights::Dict
+    final_weights::Dict
+end
+
 # Empty constructor
-Wfst() = Wfst(Set(), Set{String}(), Set{String}(), Set(), Set(), Set(),
-            Dict(), Dict())
+Wfst() = Wfst(Set(), Set{String}(), Set{String}(), Set(), Set(),
+        Set{Arc}(), Dict(), Dict())
 
 # Returns a string representation of the supplied WFST in the DOT language for
 # use with Graphviz.
@@ -57,7 +57,8 @@ function wfst2dot(wfst::Wfst)
         fromtext = replace(string(arc.from), r"\"", "\\\"")
         totext = replace(string(arc.to), r"\"", "\\\"")
         s = "$s\t\"$fromtext\" -> \"$totext\"
-             [label=\"$(string(arc.input)):$(string(arc.output))/$(arc.weight)\"];\n"
+             [label=\"$(string(arc.input)):$(string(arc.output))
+             /$(arc.weight)\"];\n"
     end
     s = "$s}"
     return s
@@ -74,8 +75,8 @@ function add_arc!(wfst::Wfst,
     wfst.states = union(wfst.states, Set([[from], [to]]))
     wfst.input_alphabet = union(wfst.input_alphabet, Set([input]))
     wfst.output_alphabet = union(wfst.output_alphabet, Set([output]))
-    wfst.transitions =
-            union(wfst.transitions, Set([(from, to, input, output, weight)]))
+    wfst.arcs =
+            union(wfst.arcs, Set([Arc(from, to, input, output, weight)]))
 end
 
 function compose(a::Wfst, b::Wfst)
@@ -110,8 +111,7 @@ function compose(a::Wfst, b::Wfst)
     # Let the final states start empty
     final_states = Set()
     final_weights = Dict()
-    transitions = Set()
-
+    arcs::Set{Arc} = Set{Arc}()
 
     # From the starting states, propagate through the Fst along possible
     # composed paths adding states and weights as we go.
@@ -124,30 +124,28 @@ function compose(a::Wfst, b::Wfst)
             final_weights[state] = a.final_weights[state[1]] *
                     b.final_weights[state[2]]
         end
-        # For each rule combination that travels from the states of 'a' and 'b'
-        for rule_combo in [(x,y) for x in a.transitions, y in b.transitions]
-            if rule_combo[1][1] == state[1] && rule_combo[2][1] == state[2]
-                # If the output of the 'a' rule == the input of the 'b' rule
-                if rule_combo[1][4] == rule_combo[2][3]
-                    next_state = (rule_combo[1][2], rule_combo[2][2])
+        # For each arc combination that travels from the states of 'a' and 'b'
+        for arc_combo in [(x,y) for x in a.arcs, y in b.arcs]
+            if arc_combo[1].from == state[1] && arc_combo[2].from == state[2]
+                # If the output of the 'a' arc == the input of the 'b' arc
+                if arc_combo[1].output == arc_combo[2].input
+                    next_state = (arc_combo[1].to, arc_combo[2].to)
                     if !(next_state in states)
                         states = union(states, Set([next_state]))
                         push!(queue, next_state)
                     end
-                    new_rule = (state,next_state,
-                            rule_combo[1][3],rule_combo[2][4],
-                            rule_combo[1][5]*rule_combo[2][5])
-                    debug(string("new_rule: ", new_rule))
-                    transitions = union(transitions, Set([new_rule]))
+                    new_arc = Arc(state,next_state,
+                            arc_combo[1].input, arc_combo[2].output,
+                            arc_combo[1].weight * arc_combo[2].weight)
+                    debug(string("new_arc: ", new_arc))
+                    arcs = union(arcs, Set{Arc}([new_arc]))
                 end
             end
         end
     end
 
-    # Then consider removing unreachable states and transitions that cannot
-    # occur
     return Wfst(states, input_alphabet, output_alphabet, initial_states,
-           final_states, transitions, initial_weights, final_weights)
+           final_states, arcs, initial_weights, final_weights)
 end
 
 # Add a state to the final states list
@@ -166,36 +164,36 @@ end
 function topological_sort(wfst::Wfst)
     graph = deepcopy(wfst)
     l = Any[]
-    s = states_with_no_in_edges(wfst)
+    s = states_with_no_in_arcs(wfst)
     while length(s) > 0
         n = pop!(s)
         push!(l, n)
         debug(string("s: ", s))
         debug(string("l: ", l))
-        # Remove edges that lead from n to other nodes
-        for rule in graph.transitions
-            if rule[1] == n
-                debug(string("rule to delete: ", rule))
-                graph.transitions = setdiff(graph.transitions, Set([rule]))
-                debug(string("graph.transitions: ", graph.transitions))
-                # Add to the queue those other nodes have other incoming edges.
-                if rule[2] in states_with_no_in_edges(graph)
-                    s = union(s, Set([rule[2]]))
+        # Remove arcs that lead from n to other nodes
+        for arc in graph.arcs
+            if arc.from == n
+                debug(string("arc to delete: ", arc))
+                graph.arcs = setdiff(graph.arcs, Set([arc]))
+                debug(string("graph.arcs ", graph.arcs))
+                # Add to the queue those other states have other incoming arcs.
+                if arc.to in states_with_no_in_arcs(graph)
+                    s = union(s, Set([arc.to]))
                 end
             end
         end
     end
-    debug(string("graph.transitions: ", graph.transitions))
-    if length(graph.transitions) > 0
+    debug(string("graph.arcs: ", graph.arcs))
+    if length(graph.arcs) > 0
         error("Graph is cyclic.")
     else
         return l
     end
 end
 
-# Returns a set of states that have no edges coming in.
-function states_with_no_in_edges(wfst::Wfst)
-    states_with_in_edges = Set([rule[2] for rule in wfst.transitions])
-    return setdiff(wfst.states, states_with_in_edges)
+# Returns a set of states that have no arcs coming in.
+function states_with_no_in_arcs(wfst::Wfst)
+    states_with_in_arcs = Set([arc.to for arc in wfst.arcs])
+    return setdiff(wfst.states, states_with_in_arcs)
 end
 end
