@@ -27,9 +27,9 @@ create_pdf(b, "b.pdf")
 c = compose(a, b)
 create_pdf(c, "c.pdf")
 
-println(states_with_no_in_arcs(a))
-println(states_with_no_in_arcs(b))
-println(states_with_no_in_arcs(c))
+println(Fst.states_with_no_in_arcs(a))
+println(Fst.states_with_no_in_arcs(b))
+println(Fst.states_with_no_in_arcs(c))
 
 #println(topological_sort(a))
 println(topological_sort(b))
