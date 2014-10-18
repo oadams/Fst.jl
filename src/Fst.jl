@@ -13,10 +13,19 @@ type Wfst
     initial_states::Set
     final_states::Set
     # Transition rules of the form: (fromstate, tostate, input, output, weight)
-    transitions::Set
+    arcs::{Arc}
     # Maps from initial and final states to their weights.
     initial_weights::Dict
     final_weights::Dict
+end
+
+# The arc type that specify "arcs", "edges" or "transition rules".
+type Arc
+    from
+    to
+    input::String
+    output::String
+    weight::Float64
 end
 
 # Empty constructor
@@ -41,14 +50,14 @@ function wfst2dot(wfst::Wfst)
             s = "$s\t\"$nodetext\" [shape=circle]\n"
         end
     end
-    for rule in wfst.transitions
+    for arc in wfst.arcs
         # fromtext and totext used to allow us to prepend quotes in the
         # actual nodes names with backslashes so that bash pipes the desired
         # text to graphviz.
-        fromtext = replace(string(rule[1]), r"\"", "\\\"")
-        totext = replace(string(rule[2]), r"\"", "\\\"")
+        fromtext = replace(string(arc.from), r"\"", "\\\"")
+        totext = replace(string(arc.to), r"\"", "\\\"")
         s = "$s\t\"$fromtext\" -> \"$totext\"
-             [label=\"$(string(rule[3])):$(string(rule[4]))/$(rule[5])\"];\n"
+             [label=\"$(string(arc.input)):$(string(arc.output))/$(arc.weight)\"];\n"
     end
     s = "$s}"
     return s

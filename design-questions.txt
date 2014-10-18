@@ -2,6 +2,10 @@ Do we allow states to have names other than integers?
 
 	Sure, why not? Note that at the moment the compose function creates states
 	whose names are tuples of the corresponding states in the supplied wfsts.
+	I'm not sure if there are future performance disadvantages with this
+	though. Will it make much of a difference if the compiler can tell what
+	types the states take on? I guess it depends on the operations that the Fst
+	package ends up implementing. 
 
 What order do we give the fields of the Wfst type? What order do we give the
 arguments of add_arc?
@@ -25,19 +29,29 @@ each time?
 
 How do we make good unit tests for this?
 
+	For functionality shared with OpenFst it would be worth looking into their
+	tests and perhaps just ripping them off completely.
+
 What functionality are we aiming for? Design with that in mind.
 
 	My immediate practical requirements for the paper are a weighted
-	finite-state transducer type with a composition operator and methods to
-	perform forward filtering / backward sampling. That's about it. Oh and an
-	FSA type for linear chains.
+	finite-state transducer type, an FSA type (for linear chains), a
+	composition operator and methods to perform forward filtering / backward
+	sampling.
 
 	Basic other operations include functions to create graphical
 	representations using Graphviz, perhaps tying this into IJulia some way in
 	the spirit of IPython.Display (not sure where IJUlia is on this front yet).
+	This would be great for prototyping.
 
-	Also, fundamental operations listed on the FST wikipedia page and Pyfst
+	Also, fundamental operations listed on the FST wikipedia page and OpenFst/Pyfst
 	should be included.
+
+How should finite state acceptors be implemented?
+
+	In OpenFst they're just WFSTs where the input and output labels are set to
+	be the same. I'm not sure if that's what we should go with here but it's a
+	reference point.
 
 How should we name the fields of the Fst? With greek names in line with the
 formal construction, or longer human readable names?
@@ -48,13 +62,22 @@ formal construction, or longer human readable names?
 How does our type hierarchy work?
 
 	I think for the moment there won't be a type hierarchy. I'm starting with a
-	Wfst type. I might need to make an Fsa/Wfsa type for linear chains.
+	Wfst type. I might need to make an Fsa/Wfsa type for linear chains,
+	otherwise they could just be instances of the Fst type where input/output
+	labels are the same.
+	
+	Worth noting is that there are some general graph algorithms coming into
+	the package (such as topological sort algorithm so far). I'm not sure if
+	there should be an abstract 'Graph' type that these sorts of methods
+	operate on.
 
 In composition, do we need to get rid of arcs and nodes that can't get to the
 final state (ie. the "dead ends")?
 
 	I suspect it won't be a problem for forward-backward sampling but it would
-	be good to include code to trim these at some point.
+	be good to include code to trim these at some point. Otherwise it would
+	probably cause problems with other algorithms and is inconsistent with what
+	OpenFst/Pyfst do.
 
 What should the name of the package be called?
 
@@ -64,7 +87,7 @@ What should the name of the package be called?
 
 Should quotes be put around node sub-names in tuples in wfst2dot?
 
-	Perhaps not.
+	Perhaps not, but it's like that for now.
 
 What assertions and other checks should be in place to ensure that the FSTs
 make sense?
@@ -76,13 +99,8 @@ If I add support for arbitrary semirings, what constraints do I need to put on
 them?
 
 What standard should I adhere to for referring to nodes/edges
-states/arcs/rules?
-
-Now that I'm including some more general-graph functions I should really start
-thinking about a type hierarchy so that they don't have to just apply to Wfsts.
+states/arcs/rules? At the moment it's a bit all over the place.
 
 Perhaps making each rule a type would help readability (we're doing a lot
 of indexing on the rule tuples). So we could have edge.input, edge.output,
 edge.weight, edge.from, edge.to.
-
-I should probably add exclamation marks to destructive methods
