@@ -59,7 +59,7 @@ function create_pdf(wfst::Wfst, filename::String)
     run(`echo $dotstring` |> `dot -Tpdf -o $filename`)
 end
 
-function add_arc(wfst::Wfst,
+function add_arc!(wfst::Wfst,
         from::String, to::String,
         input::String, output::String, weight::Float64)
     wfst.states = union(wfst.states, Set([[from], [to]]))
@@ -142,13 +142,13 @@ function compose(a::Wfst, b::Wfst)
 end
 
 # Add a state to the final states list
-function add_final_state(wfst::Wfst, state::String)
+function add_final_state!(wfst::Wfst, state::String)
     @assert state in wfst.states
     wfst.final_states = union(wfst.final_states, Set([state]))
 end
 
 # Add a state to the initial states list
-function add_initial_state(wfst::Wfst, state::String)
+function add_initial_state!(wfst::Wfst, state::String)
     @assert state in wfst.states
     wfst.initial_states = union(wfst.initial_states, Set([state]))
 end
