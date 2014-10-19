@@ -1,4 +1,4 @@
-export compose
+export compose, compose_epsilon
 
 function compose(a::Wfst, b::Wfst)
     # Note that we're going with the probability semiring right now.
@@ -67,4 +67,16 @@ function compose(a::Wfst, b::Wfst)
 
     return Wfst(states, input_alphabet, output_alphabet, initial_states,
            final_states, arcs, initial_weights, final_weights)
+end
+
+function compose_epsilon(a::Wfst, b::Wfst)
+    for state in a.states
+        add_arc!(a, state, state, "<epsilon>", "<epsilon>", 1.0)
+    end
+    for state in b.states
+        add_arc!(b, state, state, "<epsilon>", "<epsilon>", 1.0)
+    end
+    c = compose(a, b)
+    println(c)
+    return c
 end

@@ -47,3 +47,6 @@ create_pdf(t2, "t2.pdf")
 
 c = compose(t1, t2)
 create_pdf(c, "c.pdf")
+
+c_eps = compose_epsilon(t1,t2)
+create_pdf(c_eps, "c_eps.pdf")
