@@ -29,20 +29,22 @@ end
 Wfst() = Wfst(Set(), Set{String}(), Set{String}(), Set(), Set(),
         Set{Arc}(), Dict(), Dict())
 
-# Add a state to the initial states list
-function add_initial_state!(wfst::Wfst, state::String)
+# Add a state to the initial states list with the given weight.
+function add_initial_state!(wfst::Wfst, state, weight::Float64)
     @assert state in wfst.states
     wfst.initial_states = union(wfst.initial_states, Set([state]))
+    wfst.initial_weights[state] = weight
 end
 
-# Add a state to the final states list
-function add_final_state!(wfst::Wfst, state::String)
+# Add a state to the final states list with the given weight.
+function add_final_state!(wfst::Wfst, state, weight::Float64)
     @assert state in wfst.states
     wfst.final_states = union(wfst.final_states, Set([state]))
+    wfst.final_weights[state] = weight
 end
 
 function add_arc!(wfst::Wfst,
-        from::String, to::String,
+        from, to,
         input::String, output::String, weight::Float64)
     wfst.states = union(wfst.states, Set([[from], [to]]))
     wfst.input_alphabet = union(wfst.input_alphabet, Set([input]))

@@ -1,7 +1,6 @@
 using Fst
 using Base.Test
 
-println("hello1")
 include("compose_tests.jl")
 
 #=

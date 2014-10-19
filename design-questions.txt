@@ -109,3 +109,7 @@ Should epsilon transitions be a special type, or just a string such as
 
 	For now I'm going with the special string since it means we can keep the
 	input and output fields of arcs as Strings.
+
+Should add_arc accept arbitrary types as the state arguments?
+
+	Probably, since we're saying that states can be anything.

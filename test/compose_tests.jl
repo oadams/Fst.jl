@@ -1,3 +1,4 @@
+#=
 a = Wfst()
 add_arc!(a, "0", "1", "a", "b", 0.1)
 add_arc!(a, "1", "0", "a", "b", 0.2)
@@ -24,3 +25,15 @@ create_pdf(b, "b.pdf")
 
 c = compose(a, b)
 create_pdf(c, "c.pdf")
+=#
+
+# Tests for composition involving <epsilon> transitions
+
+t1 = Wfst()
+add_arc!(t1, 0, 1, "a", "a", 1.0)
+add_arc!(t1, 1, 2, "b", "<epsilon>", 1.0)
+add_arc!(t1, 2, 3, "c", "<epsilon>", 1.0)
+add_arc!(t1, 3, 4, "d", "d", 1.0)
+add_initial_state!(t1, 0, 1.0)
+add_final_state!(t1, 4, 1.0)
+create_pdf(t1, "t1.pdf")
