@@ -79,6 +79,11 @@ final state (ie. the "dead ends")?
 	probably cause problems with other algorithms and is inconsistent with what
 	OpenFst/Pyfst do.
 
+	Note that if we don't filter stuff we can output graphs that don't even
+	have final states. Consider the start of the epsilon transition tests just
+	added to compose_tests. Perhaps compose() should be throwing errors if
+	there aren't any final states.
+
 What should the name of the package be called?
 
 	Probably Fst.jl since it's consistent with OpenFst and PyFst but using the
