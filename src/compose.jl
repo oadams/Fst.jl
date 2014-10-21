@@ -70,6 +70,8 @@ function compose(a::Wfst, b::Wfst)
 end
 
 function compose_epsilon(a::Wfst, b::Wfst)
+    @assert a.output_alphabet == b.input_alphabet
+
     for arc in a.arcs
         if arc.output == "<eps>"
             arc.output = "<eps2>"
