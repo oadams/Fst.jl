@@ -70,13 +70,46 @@ function compose(a::Wfst, b::Wfst)
 end
 
 function compose_epsilon(a::Wfst, b::Wfst)
+    for arc in a.arcs
+        if arc.output == "<eps>"
+            arc.output = "<eps2>"
+        end
+    end
+    for arc in b.arcs
+        if arc.input == "<eps>"
+            arc.input = "<eps1>"
+        end
+    end
     for state in a.states
-        add_arc!(a, state, state, "<epsilon>", "<epsilon>", 1.0)
+        add_arc!(a, state, state, "<eps>", "<eps1>", 1.0)
     end
     for state in b.states
-        add_arc!(b, state, state, "<epsilon>", "<epsilon>", 1.0)
+        add_arc!(b, state, state, "<eps2>", "<eps>", 1.0)
     end
-    c = compose(a, b)
-    println(c)
+    f = create_filter(a.output_alphabet)
+    c = compose(compose(a,f), b)
     return c
+end
+
+function create_filter(alphabet::Set{String})
+    f = Wfst()
+    for symbol in alphabet
+        add_arc!(f, 0, 0, symbol, symbol, 1.0)
+    end
+    add_arc!(f, 0, 0, "<eps2>", "<eps1>", 1.0)
+    add_arc!(f, 0, 1, "<eps1>", "<eps1>", 1.0)
+    add_arc!(f, 1, 1, "<eps1>", "<eps1>", 1.0)
+    for symbol in alphabet
+        add_arc!(f, 1, 0, symbol, symbol, 1.0)
+    end
+    add_arc!(f, 0, 2, "<eps2>", "<eps2>", 1.0)
+    add_arc!(f, 2, 2, "<eps2>", "<eps2>", 1.0)
+    for symbol in alphabet
+        add_arc!(f, 2, 0, symbol, symbol, 1.0)
+    end
+    add_initial_state!(f, 0, 1.0)
+    add_final_state!(f, 0, 1.0)
+    add_final_state!(f, 1, 1.0)
+    add_final_state!(f, 2, 1.0)
+    return f
 end

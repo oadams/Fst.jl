@@ -47,8 +47,12 @@ function add_arc!(wfst::Wfst,
         from, to,
         input::String, output::String, weight::Float64)
     wfst.states = union(wfst.states, Set([[from], [to]]))
-    wfst.input_alphabet = union(wfst.input_alphabet, Set([input]))
-    wfst.output_alphabet = union(wfst.output_alphabet, Set([output]))
+    if !ismatch(r"<.*>", input)
+        wfst.input_alphabet = union(wfst.input_alphabet, Set([input]))
+    end
+    if !ismatch(r"<.*>", output)
+        wfst.output_alphabet = union(wfst.output_alphabet, Set([output]))
+    end
     wfst.arcs =
             union(wfst.arcs, Set([Arc(from, to, input, output, weight)]))
 end
