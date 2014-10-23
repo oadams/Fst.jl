@@ -118,3 +118,8 @@ Should epsilon transitions be a special type, or just a string such as
 Should add_arc accept arbitrary types as the state arguments?
 
 	Probably, since we're saying that states can be anything.
+
+See if pyfst or openfst has a "recognize" method and then see if epsilon
+transitions act like wildcards."
+
+Tests should look at some edge cases (no nodes, etc)
