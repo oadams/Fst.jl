@@ -1,4 +1,4 @@
-Do we allow states to have names other than integers?
+Do we allow states to be non-integers?
 
 	Sure, why not? Note that at the moment the compose function creates states
 	whose names are tuples of the corresponding states in the supplied wfsts.

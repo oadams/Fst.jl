@@ -1,4 +1,4 @@
-export wfst2dot, create_pdf
+export wfst2dot, create_pdf, read_wfst
 
 # Returns a string representation of the supplied WFST in the DOT language for
 # use with Graphviz.
@@ -35,4 +35,33 @@ end
 function create_pdf(wfst::Wfst, filename::String)
     dotstring = wfst2dot(wfst)
     run(`echo $dotstring` |> `dot -Tpdf -o $filename`)
+end
+
+# Reads a text representation of a WFST in AT&T format and returns the WFST.
+function read_wfst(text)
+    wfst = Wfst()
+    lines = split(text, "\n")
+    for line in lines
+        line_items = split(line)
+        if length(line_items) == 5
+            # Then it's an arc
+            from = int(line_items[1])
+            to = int(line_items[2])
+            input = string(line_items[3])
+            output = string(line_items[4])
+            weight = float64(line_items[5])
+            add_arc!(wfst, from, to, input, output, weight)
+        elseif length(line_items) == 2
+            # Then it specifies a final weight.
+            final = int(line_items[1])
+            weight = float64(line_items[2])
+            add_final_state!(wfst, final, weight)
+        else
+            error("Invalid line length")
+        end
+    end
+    # This is going to break when we introduce other semirings because of the
+    # weight.
+    add_initial_state!(wfst, int(split(lines[1])[1]), 1.0)
+    return wfst
 end
