@@ -56,7 +56,7 @@ function read_wfst(text)
             final = int(line_items[1])
             weight = float64(line_items[2])
             add_final_state!(wfst, final, weight)
-        else
+        elseif length(line_items) != 0
             error("Invalid line length")
         end
     end

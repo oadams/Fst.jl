@@ -93,6 +93,8 @@ function compose_epsilon(a::Wfst, b::Wfst)
     return c
 end
 
+# Creates a filter that is used to filter out redundant paths when composing
+# WFSTs with epsilon transitions.
 function create_filter(alphabet::Set{String})
     f = Wfst()
     for symbol in alphabet
