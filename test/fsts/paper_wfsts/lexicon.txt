@@ -1,0 +1,6 @@
+0 1 uh <eps> 1
+1 0 <eps> a 1
+0 2 th <eps> 1
+2 3 uh <eps> 1
+3 0 <eps> the 1
+0 1
