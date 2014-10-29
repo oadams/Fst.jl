@@ -123,3 +123,6 @@ See if pyfst or openfst has a "recognize" method and then see if epsilon
 transitions act like wildcards."
 
 Tests should look at some edge cases (no nodes, etc)
+
+Should the assertions for add_initial_state and add_final_state be errors
+instead?

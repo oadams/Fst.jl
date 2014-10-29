@@ -1,6 +1,6 @@
-export compose, compose_epsilon
+export compose_basic, compose_epsilon
 
-function compose(a::Wfst, b::Wfst)
+function compose_basic(a::Wfst, b::Wfst)
     # Assert that the WFSTs are using the same semiring.
     @assert a.semiring == b.semiring
 
@@ -92,7 +92,7 @@ function compose_epsilon(a::Wfst, b::Wfst)
         add_arc!(b, state, state, "<eps2>", "<eps>", 1.0)
     end
     f = create_filter(a.output_alphabet)
-    c = compose(compose(a,f), b)
+    c = compose_basic(compose_basic(a,f), b)
     return c
 end
 
