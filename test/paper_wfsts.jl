@@ -13,5 +13,9 @@ tm = read_wfst(readall("fsts/paper_wfsts/tm.txt"))
 create_pdf(tm, "fsts/paper_wfsts/tm.pdf")
 
 lexicon_tm = compose_epsilon(lexicon, tm)
-lexicon_tm = trim(lexicon_tm)
-create_pdf(lexicon_tm, "fsts/paper_wfsts/lexicon_tm_trim.pdf")
+lexicon_tm_trim = trim(lexicon_tm)
+create_pdf(lexicon_tm_trim, "fsts/paper_wfsts/lexicon_tm_trim.pdf")
+
+lexicon_tm_noeps = compose(lexicon, tm)
+lexicon_tm_noeps_trim = trim(lexicon_tm_noeps)
+create_pdf(lexicon_tm_noeps_trim, "fsts/paper_wfsts/lexicon_tm_noeps_trim.pdf")
