@@ -126,3 +126,16 @@ Tests should look at some edge cases (no nodes, etc)
 
 Should the assertions for add_initial_state and add_final_state be errors
 instead?
+
+Also, what other places should I be throwing in assertions? Perhaps if a WFST
+has a Probability_semiring, then weights should all be >0. The question is,
+should I:
+	1. Be harcoding in assertions for the Probability_semiring
+	2. Making constraints on the weights something that the semiring carries.
+	3. Not doing any checks and just making it the users responsibility
+	(current approach).
+
+Regarding testing: Perhaps I could have a testing version of the WFST
+operations that additionally calls OpenFST and compares the output.
+
+Testing for WFST equivalence.
