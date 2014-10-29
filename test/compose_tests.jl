@@ -62,3 +62,8 @@ a = read_wfst(readall("fsts/compose_test1/a.txt"), Tropical_semiring)
 b = read_wfst(readall("fsts/compose_test1/b.txt"), Tropical_semiring)
 c = compose(a, b)
 create_pdf(c, "fsts/compose_test1/c-Tropical.pdf")
+
+a = read_wfst(readall("fsts/compose_test1/a.txt"), Log_semiring)
+b = read_wfst(readall("fsts/compose_test1/b.txt"), Log_semiring)
+c = compose(a, b)
+create_pdf(c, "fsts/compose_test1/c-Log.pdf")

@@ -1,4 +1,4 @@
-export Semiring, Probability_semiring, Tropical_semiring
+export Semiring, Probability_semiring, Tropical_semiring, Log_semiring
 
 # A semiring type that you can create. Currently the onus is on the user to
 # make sure the semiring makes sense.
@@ -11,3 +11,4 @@ end
 
 Probability_semiring = Semiring(+, *, 0, 1)
 Tropical_semiring = Semiring(min, +, Inf, 0)
+Log_semiring = Semiring((x,y) -> -log(e^-x + e^-y), +, Inf, 0)
