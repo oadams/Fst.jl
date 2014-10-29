@@ -69,7 +69,7 @@ function compose(a::Wfst, b::Wfst)
     end
 
     return Wfst(states, input_alphabet, output_alphabet, initial_states,
-           final_states, arcs, initial_weights, final_weights)
+           final_states, arcs, initial_weights, final_weights, a.semiring)
 end
 
 function compose_epsilon(a::Wfst, b::Wfst)

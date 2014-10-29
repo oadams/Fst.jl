@@ -38,8 +38,8 @@ function create_pdf(wfst::Wfst, filename::String)
 end
 
 # Reads a text representation of a WFST in AT&T format and returns the WFST.
-function read_wfst(text)
-    wfst = Wfst()
+function read_wfst(text, semiring)
+    wfst = Wfst(semiring)
     lines = split(text, "\n")
     for line in lines
         line_items = split(line)

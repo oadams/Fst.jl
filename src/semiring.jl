@@ -1,4 +1,4 @@
-export Semiring
+export Semiring, Probability_semiring
 
 # A semiring type that you can create. Currently the onus is on the user to
 # make sure the semiring makes sense.
@@ -9,4 +9,4 @@ immutable Semiring
 	ring_one::Float64
 end
 
-probability_semiring = Semiring(+, *, 0, 1)
+Probability_semiring = Semiring(+, *, 0, 1)
