@@ -1,0 +1,7 @@
+<eps> 0
+th 1
+uh 2
+the 3
+a 4
+das 5
+ein 6

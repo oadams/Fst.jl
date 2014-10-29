@@ -52,5 +52,5 @@ function coaccessible(wfst::Wfst)
 end
 
 function trim(wfst::Wfst)
-    return coacccessible(accessible(wfst))
+    return coaccessible(accessible(wfst))
 end
