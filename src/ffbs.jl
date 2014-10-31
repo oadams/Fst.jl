@@ -1,10 +1,9 @@
-export forward_filtering
+export forward_filtering, sample
 
 function forward_filtering(wfst::Wfst)
     f = Dict{Any, Float64}()
     # Will throw an error if an ordering can't be found
     ordering = topological_sort(wfst)
-    # Set the forward probabilities to be the initial weights.
     for s in ordering
         if s in wfst.initial_states
             f[s] = wfst.initial_weights[s]
@@ -19,4 +18,26 @@ function forward_filtering(wfst::Wfst)
         end
     end
     return f
+end
+
+#function backward_sampling(wfst::Wfst, f)
+#    path = Arc[]
+#    # Choose the final state first based on final_weights
+#    
+#    # This code should behave differently depending on the semiring used.
+#end
+
+function sample(items::Array, probs::Array{Float64})
+    @assert length(items) == length(probs)
+    # We're not asserting that probabilities sum to one since they might not in
+    # the WFSTs.
+
+    z = sum(probs)
+    remaining = rand()*z
+    for i in 1:length(probs)
+        remaining -= probs[i]
+        if remaining <= 0
+            return items[i]
+        end
+    end
 end
