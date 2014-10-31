@@ -8,14 +8,10 @@ function topological_sort(wfst::Wfst)
     while length(s) > 0
         n = pop!(s)
         push!(l, n)
-        debug(string("s: ", s))
-        debug(string("l: ", l))
         # Remove arcs that lead from n to other nodes
         for arc in graph.arcs
             if arc.from == n
-                debug(string("arc to delete: ", arc))
                 graph.arcs = setdiff(graph.arcs, Set([arc]))
-                debug(string("graph.arcs ", graph.arcs))
                 # Add to the queue those other states have other incoming arcs.
                 if arc.to in states_with_no_in_arcs(graph)
                     s = union(s, Set([arc.to]))
@@ -23,7 +19,6 @@ function topological_sort(wfst::Wfst)
             end
         end
     end
-    debug(string("graph.arcs: ", graph.arcs))
     if length(graph.arcs) > 0
         error("Graph is cyclic.")
     else

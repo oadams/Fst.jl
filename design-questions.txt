@@ -139,3 +139,7 @@ Regarding testing: Perhaps I could have a testing version of the WFST
 operations that additionally calls OpenFST and compares the output.
 
 Testing for WFST equivalence.
+
+See if we can change the Wfst definition so that the weight dictionaries are
+either parameterized as {Any, Float64} or are in fact not dictionaries (I might
+be starting to see why OpenFst uses integers to represent states)

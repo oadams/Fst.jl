@@ -6,5 +6,6 @@ include("io.jl")
 include("compose.jl")
 include("topological_sort.jl")
 include("trim.jl")
+include("ffbs.jl")
 
 end
