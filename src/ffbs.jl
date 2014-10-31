@@ -1,4 +1,4 @@
-export forward_filtering, sample
+export forward_filtering, backward_sampling, sampleone
 
 function forward_filtering(wfst::Wfst)
     f = Dict{Any, Float64}()
@@ -20,14 +20,34 @@ function forward_filtering(wfst::Wfst)
     return f
 end
 
-#function backward_sampling(wfst::Wfst, f)
-#    path = Arc[]
-#    # Choose the final state first based on final_weights
-#    
-#    # This code should behave differently depending on the semiring used.
-#end
+function backward_sampling(wfst::Wfst, f)
+    path = Arc[]
+    # Choose the final state first based on final_weights
+    state = sampleone(collect(keys(wfst.final_weights)),
+            collect(values(wfst.final_weights)))
+    while !(state in wfst.initial_states)
+        possible_arcs = Arc[]
+        possible_arcs_weights = Float64[]
+        for arc in wfst.arcs
+            if arc.to == state
+                push!(possible_arcs, arc)
+                push!(possible_arcs_weights, arc.weight)
+            end
+        end
+        #println(string("possible_arcs: ", possible_arcs))
+        #println(string("possible_arcs_weights: ", possible_arcs_weights))
+        chosen_arc = sampleone(possible_arcs, possible_arcs_weights)
+        unshift!(path, chosen_arc)
+        state = chosen_arc.from
+        #println(state)
+    end
+    return(path)
+    # This code should behave differently depending on the semiring used.
+end
 
-function sample(items::Array, probs::Array{Float64})
+# Samples from items where each item has a corresponding probability located at
+# the same index in probs
+function sampleone(items::Array, probs::Array{Float64})
     @assert length(items) == length(probs)
     # We're not asserting that probabilities sum to one since they might not in
     # the WFSTs.

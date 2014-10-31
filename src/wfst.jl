@@ -21,8 +21,8 @@ type Wfst
     # Arcs of the form: (from, to, input, output, weight)
     arcs::Set{Arc}
     # Maps from initial and final states to their weights.
-    initial_weights::Dict
-    final_weights::Dict
+    initial_weights::Dict{Any, Float64}
+    final_weights::Dict{Any, Float64}
     semiring::Semiring
 end
 
