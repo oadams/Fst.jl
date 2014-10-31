@@ -1,7 +1,8 @@
-export compose, compose_epsilon
+export compose_basic, compose_epsilon
 
-function compose(a::Wfst, b::Wfst)
-    # Note that we're going with the probability semiring right now.
+function compose_basic(a::Wfst, b::Wfst)
+    # Assert that the WFSTs are using the same semiring.
+    @assert a.semiring == b.semiring
 
     # The input and output alphabets are those of a and b respectively
     @assert a.output_alphabet == b.input_alphabet
@@ -19,8 +20,8 @@ function compose(a::Wfst, b::Wfst)
     for state in initial_states
         if haskey(a.initial_weights, state[1]) &&
                 haskey(b.initial_weights, state[2])
-            initial_weights[state] =
-                    a.initial_weights[state[1]] * b.initial_weights[state[2]]
+            initial_weights[state] = a.semiring.multiplication(
+                    a.initial_weights[state[1]], b.initial_weights[state[2]])
         end
     end
     debug(string("initial_weights: ", initial_weights))
@@ -42,8 +43,8 @@ function compose(a::Wfst, b::Wfst)
         if state in [(x,y) for x in a.final_states, y in b.final_states]
             debug(string("state ", state, " in final state cross product."))
             final_states = union(final_states, Set([state]))
-            final_weights[state] = a.final_weights[state[1]] *
-                    b.final_weights[state[2]]
+            final_weights[state] = a.semiring.multiplication(
+                    a.final_weights[state[1]], b.final_weights[state[2]])
         end
         # For each arc combination that travels from the states of 'a' and 'b'
         for arc_combo in [(x,y) for x in a.arcs, y in b.arcs]
@@ -55,9 +56,11 @@ function compose(a::Wfst, b::Wfst)
                         states = union(states, Set([next_state]))
                         push!(queue, next_state)
                     end
+                    product = a.semiring.multiplication(
+                            arc_combo[1].weight, arc_combo[2].weight)
                     new_arc = Arc(state,next_state,
                             arc_combo[1].input, arc_combo[2].output,
-                            arc_combo[1].weight * arc_combo[2].weight)
+                            product)
                     debug(string("new_arc: ", new_arc))
                     arcs = union(arcs, Set{Arc}([new_arc]))
                 end
@@ -66,7 +69,7 @@ function compose(a::Wfst, b::Wfst)
     end
 
     return Wfst(states, input_alphabet, output_alphabet, initial_states,
-           final_states, arcs, initial_weights, final_weights)
+           final_states, arcs, initial_weights, final_weights, a.semiring)
 end
 
 function compose_epsilon(a::Wfst, b::Wfst)
@@ -89,7 +92,7 @@ function compose_epsilon(a::Wfst, b::Wfst)
         add_arc!(b, state, state, "<eps2>", "<eps>", 1.0)
     end
     f = create_filter(a.output_alphabet)
-    c = compose(compose(a,f), b)
+    c = compose_basic(compose_basic(a,f), b)
     return c
 end
 

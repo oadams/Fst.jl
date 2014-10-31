@@ -1,5 +1,6 @@
 module Fst
 
+include("semiring.jl")
 include("wfst.jl")
 include("io.jl")
 include("compose.jl")

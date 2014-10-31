@@ -23,11 +23,12 @@ type Wfst
     # Maps from initial and final states to their weights.
     initial_weights::Dict
     final_weights::Dict
+    semiring::Semiring
 end
 
 # Empty constructor
-Wfst() = Wfst(Set(), Set{String}(), Set{String}(), Set(), Set(),
-        Set{Arc}(), Dict(), Dict())
+Wfst(semiring::Semiring) = Wfst(Set(), Set{String}(), Set{String}(), Set(),
+        Set(), Set{Arc}(), Dict(), Dict(), semiring)
 
 # Add a state to the initial states list with the given weight.
 function add_initial_state!(wfst::Wfst, state, weight::Float64)
