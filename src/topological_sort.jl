@@ -3,14 +3,16 @@ export topological_sort
 # Returns a topolically sorted ordering of the states in the supplied wfst.
 function topological_sort(wfst::Wfst)
     graph = deepcopy(wfst)
-    l = Any[]
+    state_ordering = Any[]
+    arc_ordering = Arc[]
     s = states_with_no_in_arcs(wfst)
     while length(s) > 0
         n = pop!(s)
-        push!(l, n)
+        push!(state_ordering, n)
         # Remove arcs that lead from n to other nodes
         for arc in graph.arcs
             if arc.from == n
+                push!(arc_ordering, arc)
                 graph.arcs = setdiff(graph.arcs, Set([arc]))
                 # Add to the queue those other states have other incoming arcs.
                 if arc.to in states_with_no_in_arcs(graph)
@@ -22,7 +24,7 @@ function topological_sort(wfst::Wfst)
     if length(graph.arcs) > 0
         error("Graph is cyclic.")
     else
-        return l
+        return state_ordering, arc_ordering
     end
 end
 

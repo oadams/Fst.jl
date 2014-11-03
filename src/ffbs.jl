@@ -20,6 +20,16 @@ function forward_filtering(wfst::Wfst)
     return f
 end
 
+function new_forward_filtering(wfst::Wfst)
+    f = Dict{Any, Float64}()
+    # Will throw an error if an ordering can't be found
+    ordering = topological_sort(wfst)
+    for s in wfst.initial_states
+        f[s] = wfst.initial_weights[s]
+    end
+
+end
+
 function backward_sampling(wfst::Wfst, f)
     path = Arc[]
     # Choose the final state first based on final_weights
