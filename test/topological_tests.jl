@@ -6,3 +6,7 @@ b = read_wfst(readall("fsts/ffbs/b.txt"), Probability_semiring)
 orderings = topological_sort(a)
 println(orderings[1])
 println(orderings[2])
+
+orderings = topological_sort(b)
+println(orderings[1])
+println(orderings[2])

@@ -1,10 +1,10 @@
-export forward_filtering, backward_sampling, sampleone
+export forward_filtering, new_forward_filtering, backward_sampling, sampleone
 
 function forward_filtering(wfst::Wfst)
     f = Dict{Any, Float64}()
     # Will throw an error if an ordering can't be found
-    ordering = topological_sort(wfst)
-    for s in ordering
+    orderings = topological_sort(wfst)
+    for s in orderings[1] # The state ordering
         if s in wfst.initial_states
             f[s] = wfst.initial_weights[s]
         else
@@ -23,11 +23,18 @@ end
 function new_forward_filtering(wfst::Wfst)
     f = Dict{Any, Float64}()
     # Will throw an error if an ordering can't be found
-    ordering = topological_sort(wfst)
+    orderings = topological_sort(wfst)
     for s in wfst.initial_states
         f[s] = wfst.initial_weights[s]
     end
-
+    for arc in orderings[2]
+        if haskey(f, arc.to)
+            f[arc.to] += f[arc.from] * arc.weight
+        else
+            f[arc.to] = f[arc.from] * arc.weight
+        end
+    end
+    return f
 end
 
 function backward_sampling(wfst::Wfst, f)
